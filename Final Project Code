@@ -1,0 +1,216 @@
+from tkinter import *
+from collections import Counter
+from logging import root
+from re import sub
+from sre_parse import State
+from tkinter import *
+import sqlite3
+
+
+
+root =Tk()
+root.geometry("400x400")
+
+
+# Database
+
+# Define image
+# bg = PhotoImage(file="C:/Users/kenzo/Desktop/Project Folder/Lion.png")
+
+# Create a label
+# my_label = Label(root, image=bg)
+# my_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+
+
+
+# Create or connect to a database
+conn = sqlite3.connect('Pharmaceutical.db')
+
+# Create a cursor
+c = conn.cursor()
+
+#Create table
+
+# table = """ CREATE TABLE pharmaceutical (
+#         First_name text,
+#         Last_name text, 
+#         address text,
+#         idnumber integer,
+#         socialsecurity integer
+#         )""")
+
+# c.execute(table)
+# Create edit function to update a record
+def edit():
+    editor = Tk()
+    editor.title('Update a Record')
+    editor.geometry("400x400")
+
+    # Create Text Boxes
+    f_name_editor = Entry(editor, width=30)
+    f_name_editor.grid(row=0, column=1, padx=20, pady=(10, 0))
+    l_name_editor = Entry(editor, width=30)
+    l_name_editor.grid(row=1, column=1, padx=20)
+    address_editor = Entry(editor, width=30)
+    address_editor.grid(row=2, column=1, padx=20)
+    idnumber_editor = Entry(editor, width=30)
+    idnumber_editor.grid(row=3, column=1, padx=20)
+    socialsecurity_editor = Entry(editor, width=30)
+    socialsecurity_editor.grid(row=4, column=1, padx=20)
+    
+
+    # Create Text Box Labels
+    f_name_label = Label(editor, text="First Name")
+    f_name_label.grid(row=0, column=0, pady=(10, 0))
+    l_name_label = Label(editor, text="Last Name")
+    l_name_label.grid(row=1, column=0)
+    address_label = Label(editor, text="Address")
+    address_label.grid(row=2, column=0)
+    idnumber_label = Label(editor, text="Id number")
+    idnumber_label.grid(row=3, column=0)
+    socialsecurity_label = Label(editor, text="Social Security")
+    socialsecurity_label.grid(row=4, column=0)
+    
+    # Create a Save Button to Save edited record
+    edit_btn = Button(editor, text="Save Record", command=edit)
+    edit_btn.grid(row=5, column=0, columnspan=2, pady=10, padx=10, ipadx=145)
+
+# Create Function to Delete A Record
+def delete():
+    # Create or connect to a database
+    conn = sqlite3.connect('Pharmaceutical.db')
+    # Create a cursor
+    c = conn.cursor()  
+
+    # Delete a record
+    c.execute("DELETE from pharmaceutical WHERE oid= " + delete_box.get())
+
+    # Commit Changes
+    conn.commit()
+
+    # Close Connection
+    conn.close()
+
+
+
+
+# Create a Submit Function For database
+def submit():
+    # Create or connect to a database
+    conn = sqlite3.connect('pharmaceutical.db')
+    # Create a cursor
+    c = conn.cursor()
+
+   
+    # Insert Into Table
+    c.execute("INSERT INTO pharmaceutical VALUES (:f_name, :l_name, :address, :idnumber, :socialsecurity)",
+            {
+                
+                'f_name': f_name.get(),
+                'l_name': l_name.get(),
+                'address': address.get(),
+                'idnumber': idnumber.get(),
+                'socialsecurity': socialsecurity.get()
+            }
+    )
+
+
+
+    # Commit Changes
+    conn.commit()
+
+    # Close Connection
+    conn.close()
+
+
+
+    # Clear The Text Boxes
+    f_name.delete(0, END)
+    l_name.delete(0, END)
+    address.delete(0, END)
+    idnumber.delete(0, END)
+    socialsecurity.delete(0, END)
+
+# Create Query Function
+def query():
+    # Create or connect to a database
+    conn = sqlite3.connect('pharmaceutical.db')
+    # Create a cursor
+    c = conn.cursor()
+
+    # Query the database
+    c.execute("SELECT *, oid FROM pharmaceutical")
+    records = c.fetchall()
+    # print(records)
+
+    # Loop Through Results
+    print_records = ''
+    for record in records:
+        print_records +="\n" + str(record[0]) + " .  " +  str(record[1]) + '  ,  ' + str(record[2]) + '  ,  ' + str(record[3]) 
+
+
+    query_label = Label(root, text=print_records)
+    query_label.grid(row=12, column=0, columnspan=2)
+
+    #Commit Changes
+    conn.commit()
+
+    # Close Connection
+    conn.close()
+
+
+# Create Text Boxes
+f_name = Entry(root, width=30)
+f_name.grid(row=0, column=1, padx=20, pady=(10, 0))
+l_name = Entry(root, width=30)
+l_name.grid(row=1, column=1, padx=20)
+address = Entry(root, width=30)
+address.grid(row=2, column=1, padx=20)
+idnumber = Entry(root, width=30)
+idnumber.grid(row=3, column=1, padx=20)
+socialsecurity = Entry(root, width=30)
+socialsecurity.grid(row=4, column=1, padx=20)
+delete_box = Entry(root, width=30)
+delete_box.grid(row=9, column=1, pady=5)
+
+
+# Create Text Box Labels
+f_name_label = Label(root, text="First Name")
+f_name_label.grid(row=0, column=0, pady=(10, 0))
+l_name_label = Label(root, text="Last Name")
+l_name_label.grid(row=1, column=0)
+address_label = Label(root, text="Address")
+address_label.grid(row=2, column=0)
+idnumber_label = Label(root, text="Id number")
+idnumber_label.grid(row=3, column=0)
+socialsecurity_label = Label(root, text="Social Security")
+socialsecurity_label.grid(row=4, column=0)
+delete_box_label = Label(root, text="Select ID")
+delete_box_label.grid(row=9, column=0, pady=5)
+
+
+# Creating Submit Button
+submit_btn = Button(root, text="Add Record To Database", command=submit)
+submit_btn.grid(row=6, column=0, columnspan=2, pady=10, padx=10, ipadx=100)
+
+# Create a Query Button
+query_btn = Button(root, text="Show Records", command=query)
+query_btn.grid(row=7, column=0, columnspan=2, pady=10, padx=10, ipadx=137)
+
+
+#Create A Delete Button
+delete_btn = Button(root, text="Delete Record", command=delete)
+delete_btn.grid(row=10, column=0, columnspan=2, pady=10, padx=10, ipadx=136)
+
+# Create an Edit Button
+edit_btn = Button(root, text="Edit Record", command=edit)
+edit_btn.grid(row=11, column=0, columnspan=2, pady=10, padx=10, ipadx=143)
+
+# Commit Changes
+conn.commit()
+
+# Close Connection
+conn.close()
+
+root.mainloop() 
